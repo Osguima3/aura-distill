@@ -230,7 +230,7 @@ On the FIRST invocation of `/distill` in a session, check for updates:
 1. Read `{DISTILL_DIR}/.version` to get the installed version
 2. Check if `{DISTILL_DIR}/feedback/preferences.md` contains an auto-update preference
 3. Fetch `https://raw.githubusercontent.com/tomacco/aura-distill/main/VERSION` to get the latest
-4. If versions match → continue silently
+4. If versions match and `{DISTILL_DIR}/bin/distill-lock.sh` and `distill-lock.ps1` exist → continue silently. If either is missing, run the update procedure below now, whatever the versions say.
 5. If they differ → proceed based on user preference:
 
 ### If auto-update is OFF (default):
