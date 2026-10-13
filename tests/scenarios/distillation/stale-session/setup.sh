@@ -16,21 +16,21 @@ cat > "$STORE/SPINE.md" <<'MD'
 # Distill Knowledge Index
 
 ## Craft
-- [Engineering practice](craft/engineering.md) — read before deploying or formatting code.
+- [Engineering practice](craft/engineering.md) — read before creating a branch or formatting code.
 MD
 
 cat > "$STORE/craft/engineering.md" <<'MD'
 ---
 domain: craft
-scope: deploy procedure and code formatting for the payments service
+scope: branch naming and code formatting for the payments service
 last_updated: 2026-10-10
 staleness_threshold: 90
 ---
 
-## Deploys
-- [UPDATED 2026-10-10] Every deploy goes through canary (10 min) before prod.
-  Previously: deploy straight to prod. Reason: the 2026-10-09 incident.
-  origin: evidence — confidence: provisional
+## Branches
+- [UPDATED 2026-10-10] Name branches `feat/<ticket>-<slug>`.
+  Previously: `<initials>/<slug>`. Reason: the team agreed on ticket-first names.
+  origin: convention — confidence: provisional
   last_validated: 2026-10-10
 
 ## Formatting
@@ -52,8 +52,8 @@ You CANNOT see the original conversation. Everything you know comes from the sig
 E) Session metadata: a payments-service session, left open for eight days. session_started_at: 2026-10-04T08:00:00Z.
 
 B) Corrections & teachings
-1. said_at: 2026-10-05T09:12:00Z. User: "skip canary, deploy straight to prod, canary just slows us down." origin: directive (the user).
-2. said_at: unknown. User: "canary is overkill for this service, drop it." origin: directive (the user).
+1. said_at: 2026-10-05T09:12:00Z. User: "name branches with your initials, like ig/fix-retry. That is our convention." origin: convention.
+2. said_at: unknown. User: "no ticket numbers in branch names, they are noise." origin: convention.
 3. said_at: 2026-10-12T16:40:00Z. User: "use spaces, not tabs, four of them. We changed the formatter today." origin: convention.
 
 ## Lock

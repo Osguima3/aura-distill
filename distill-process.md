@@ -371,8 +371,8 @@ These markers are READ by the rules/distill.md retrieval system. They trigger sp
 The order of distillation runs says nothing about which knowledge is newer. A session left open for days can be distilled after sessions that started later, and its signals then contradict rules that replaced them. Each signal carries `said_at` (the dispatcher's Step 1G; an inbox item's `created`). Use it whenever a signal would replace, deprecate or correct an existing entry:
 
 1. **Knowledge date** = the entry's newest own date: `[UPDATED date]`, `last_validated`, or a date in its marker. Use the file's `last_updated` only when the entry has none.
-2. **`said_at` later than the knowledge date** → the signal is newer. Encode it normally.
-3. **`said_at` earlier than the knowledge date** → the signal is stale. Do NOT change the entry. List it under **Stale signals held back** in the report: the signal, its `said_at`, the entry, and the entry's date. The user decides.
+2. **`said_at` later than the knowledge date** → the signal is newer. Encode it normally. A knowledge date with no time of day covers that whole day: a signal from the same day is not later.
+3. **`said_at` earlier than, or on the same day as, the knowledge date** → the signal is stale. Do NOT change the entry. List it under **Stale signals held back** in the report: the signal, its `said_at`, the entry, and the entry's date. The user decides.
 4. **`said_at: unknown`** → use the session's `session_started_at`. If that is unknown too, treat the signal as stale.
 5. Signals that add knowledge without contradicting an entry are not affected.
 
