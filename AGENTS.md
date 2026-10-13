@@ -62,6 +62,7 @@ When developing or testing:
 - Run integration tests: `./test-sandbox.sh`
 - Run Antigravity Time Index parity + hostile-input tests: `./tests/antigravity/run-parity-test.sh` (and the connector runners `run-antigravity-connector-tests.sh` / `.ps1`)
 - Run the run-lock tests (bash, PowerShell when present, and both on one store): `./tests/lock/run-lock-tests.sh`
+- Run the stale-session test (an old session distilled last must not overwrite newer knowledge; runs one live agent): `./tests/scenarios/distillation/stale-session/run-stale-session-test.sh`
 - Run deterministic Claude/Codex installer tests: `pwsh tests/test-codex.ps1`
 - Run a real isolated Codex retrieval test: `pwsh tests/test-codex.ps1 -LiveRetrieval`
 

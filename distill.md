@@ -103,6 +103,18 @@ Keep the full beacon string from the output — Step 3 uses it to identify WHICH
 
 The part after `aura-distill-beacon ` (for example `20261005T074014Z-27822`) is also this run's **lock owner** in Step 2. If the beacon command failed, use `run-` plus a UTC timestamp and a random number.
 
+**G) Signal times**
+
+Give every signal from A–D a `said_at`: the UTC timestamp of the message it came from. The sub-agent compares it with the dates on existing knowledge so that a session left open for days cannot overwrite rules written after it (distill-process.md Step 1e). The run date is never a substitute.
+
+1. Find this conversation's transcript with the beacon from F, using the same search as Step 3.3.
+2. For each signal, search the transcript for a short verbatim phrase from its message and read that line's `timestamp`:
+   ```bash
+   grep -F '<phrase>' "<transcript>" </dev/null | head -1 | grep -o '"timestamp":"[^"]*"'
+   ```
+3. Add `session_started_at` to E: the first `timestamp` in the transcript.
+4. If the transcript or the phrase is not found, write `said_at: unknown`. Never estimate a time.
+
 ### Step 2: Spawn the distillation agent
 
 Use the client's sub-agent/delegation tool (Claude's Agent tool or Codex sub-agents). The sub-agent receives the FULL distillation process plus your harvested signals.
@@ -131,7 +143,7 @@ You CANNOT see the original conversation. Everything you know comes from the sig
 
 ## Session Signal Harvest
 
-[INSERT THE FULL HARVEST FROM STEP 1 HERE — failures, corrections, user observations, metadata, ALL OF IT]
+[INSERT THE FULL HARVEST FROM STEP 1 HERE — failures, corrections, user observations, metadata, ALL OF IT, with each signal's `said_at`]
 
 ## Lock
 
@@ -168,7 +180,7 @@ Return a distillation report:
 - User model updates: what changed
 - Tier health: current state
 - Economics: tokens written this run (sum of chars/4 across files you wrote), SPINE size in tokens (chars/4), tier-file KB size in tokens (sum over tier files, excludes SPINE and archive/), and the COUNT of files written
-- Flagged tensions: any honesty-vs-comfort conflicts
+- Flagged tensions: any honesty-vs-comfort conflicts, and every stale signal held back by Step 1e
 - Open questions: anything you couldn't resolve without asking the user
 `
 })
