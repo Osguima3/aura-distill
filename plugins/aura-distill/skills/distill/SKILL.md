@@ -36,8 +36,9 @@ description: Retrospective memory and context distillation for Antigravity sessi
      Antigravity. Manage the lock ONLY through `{DISTILL_DIR}/bin/distill-lock.ps1` (Windows) or
      `{DISTILL_DIR}/bin/distill-lock.sh` (POSIX); both take the same arguments. Never write
      `.lock` or `.status` by hand: read-then-write lets two sessions start at once.
-   - Run `distill-lock status`. `held <owner> <age>s` → notify the user: *"Another
-     distillation is in progress. Would you like to wait or proceed later?"*
+   - Run `distill-lock status`. `held <owner> <age>s` → do not ask the user. Tell them in one
+     line that this run will queue behind the other one, and proceed: the acquire in Step 2
+     waits up to 9 minutes and tells the user about the other run only if it exits 1.
    - `stale <owner> <age>s` with `.status` reading `running step:[N] ...` → an interrupted run:
      offer checkpoint resumption. Resuming SKIPS Step 1 (harvest) — pass the recorded step and
      signal count from `.status` to the sub-agent so it continues where the interrupted run stopped.
@@ -74,7 +75,8 @@ Format these into a clean structured signal payload.
 Spawn an isolated sub-agent using `invoke_subagent` (with `TypeName: 'self'` or `Role: 'Distillation Sub-Agent'`). If sub-agent spawning is unavailable in this session, run the pipeline in an isolated task turn — never inline in the main conversation loop (see the MANDATORY note above).
 
 Immediately before spawning, take the lock with a unique owner (for example
-`run-<UTC yyyymmddTHHMMSSZ>-<random>`): `distill-lock acquire <owner> --wait 540`.
+`run-<UTC yyyymmddTHHMMSSZ>-<random>`): `distill-lock acquire <owner> --wait 540`,
+with a tool timeout of at least 600 seconds, since the wait can last 9 minutes.
 Exit 1 means another run still holds it after 9 minutes, and exit 4 means the store could not be
 written: in both cases do not spawn; tell the user.
 

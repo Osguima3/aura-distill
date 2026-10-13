@@ -11,15 +11,12 @@ Before doing ANYTHING else, run these checks:
 **Lock check:**
 Only one distillation may write to `{DISTILL_DIR}` at a time. The run lock is `{DISTILL_DIR}/.lock`, managed ONLY through `{DISTILL_DIR}/bin/distill-lock.sh` (PowerShell: `& "{DISTILL_DIR}/bin/distill-lock.ps1"`, same arguments). Never write `.lock` or `.status` by hand: reading `.status` and then writing it lets two sessions both see `idle` and both start.
 1. Run `{DISTILL_DIR}/bin/distill-lock.sh status`. If the script is missing, the install predates the lock: run the update procedure (Version Checking below) first.
-2. `held <owner> <age>s` → another distillation is in progress. Tell the user:
-   > "Another distillation is currently running. I can harvest signals now and queue behind it, or you can try again later. What do you prefer?"
-   - If user says wait/queue: proceed with signal harvest (Step 1). The acquire in Step 2 waits for the lock.
-   - If user says later: stop, don't distill.
+2. `held <owner> <age>s` → another distillation is in progress. Do not ask the user. Tell them in one line that this run will queue behind it, then proceed with signal harvest (Step 1). The acquire in Step 2 waits up to 9 minutes for the lock; it tells the user about the other run only if it exits 1.
 3. `stale <owner> <age>s` → a crashed session left the lock behind. Check for checkpoint data (see below). Proceed; the acquire in Step 2 takes the stale lock over.
 4. `free` → proceed normally.
 
 **Checkpoint recovery:**
-If `.status` starts with `running step:` — a prior distillation was interrupted. Parse the step number and signal count from the status line. Tell the user:
+Only when `status` printed `stale`: a live run writes the same `.status` form at every heartbeat, so skip this on `held`. If `.status` starts with `running step:` — a prior distillation was interrupted. Parse the step number and signal count from the status line. Tell the user:
 > "A previous distillation was interrupted at [step]. It had harvested N signals. Want me to resume from where it left off, or start fresh?"
 - Resume: skip harvest, use the checkpoint data, spawn sub-agent with it.
 - Fresh: proceed with a new harvest; the acquire in Step 2 resets `.status`.
@@ -115,6 +112,8 @@ Use the client's sub-agent/delegation tool (Claude's Agent tool or Codex sub-age
 ```bash
 {DISTILL_DIR}/bin/distill-lock.sh acquire <owner> --wait 540
 ```
+
+The wait can last 9 minutes: run it with a tool timeout of at least 600 seconds (Claude Code: `timeout: 600000`).
 
 - Exit 0 → you hold the lock. Spawn the sub-agent and put `<owner>` in its prompt (the `## Lock` section below). The sub-agent heartbeats and releases it.
 - Exit 1 → another run still held it after 9 minutes. Do NOT spawn. Tell the user which owner holds it and offer to retry.
