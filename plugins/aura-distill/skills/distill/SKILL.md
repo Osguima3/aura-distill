@@ -36,8 +36,9 @@ description: Retrospective memory and context distillation for Antigravity sessi
      Antigravity. Manage the lock ONLY through `{DISTILL_DIR}/bin/distill-lock.ps1` (Windows) or
      `{DISTILL_DIR}/bin/distill-lock.sh` (POSIX); both take the same arguments. Never write
      `.lock` or `.status` by hand: read-then-write lets two sessions start at once.
-   - Run `distill-lock status`. `held <owner> <age>s` → notify the user: *"Another
-     distillation is in progress. Would you like to wait or proceed later?"*
+   - Run `distill-lock status`. `held <owner> <age>s` → do not ask the user. Tell them in one
+     line that this run will queue behind the other one, and proceed: the acquire in Step 2
+     waits up to 9 minutes, and only its exit 1 reaches the user.
    - `stale <owner> <age>s` with `.status` reading `running step:[N] ...` → an interrupted run:
      offer checkpoint resumption. Resuming SKIPS Step 1 (harvest) — pass the recorded step and
      signal count from `.status` to the sub-agent so it continues where the interrupted run stopped.

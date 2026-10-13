@@ -11,10 +11,7 @@ Before doing ANYTHING else, run these checks:
 **Lock check:**
 Only one distillation may write to `{DISTILL_DIR}` at a time. The run lock is `{DISTILL_DIR}/.lock`, managed ONLY through `{DISTILL_DIR}/bin/distill-lock.sh` (PowerShell: `& "{DISTILL_DIR}/bin/distill-lock.ps1"`, same arguments). Never write `.lock` or `.status` by hand: reading `.status` and then writing it lets two sessions both see `idle` and both start.
 1. Run `{DISTILL_DIR}/bin/distill-lock.sh status`. If the script is missing, the install predates the lock: run the update procedure (Version Checking below) first.
-2. `held <owner> <age>s` → another distillation is in progress. Tell the user:
-   > "Another distillation is currently running. I can harvest signals now and queue behind it, or you can try again later. What do you prefer?"
-   - If user says wait/queue: proceed with signal harvest (Step 1). The acquire in Step 2 waits for the lock.
-   - If user says later: stop, don't distill.
+2. `held <owner> <age>s` → another distillation is in progress. Do not ask the user. Tell them in one line that this run will queue behind it, then proceed with signal harvest (Step 1). The acquire in Step 2 waits up to 9 minutes for the lock; only its exit 1 reaches the user.
 3. `stale <owner> <age>s` → a crashed session left the lock behind. Check for checkpoint data (see below). Proceed; the acquire in Step 2 takes the stale lock over.
 4. `free` → proceed normally.
 
