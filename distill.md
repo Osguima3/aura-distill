@@ -271,6 +271,8 @@ mkdir -p {DISTILL_DIR}/data {DISTILL_DIR}/inbox {DISTILL_DIR}/bin
 curl -sL https://raw.githubusercontent.com/tomacco/aura-distill/main/bin/distill-lock.sh -o {DISTILL_DIR}/bin/distill-lock.sh
 curl -sL https://raw.githubusercontent.com/tomacco/aura-distill/main/bin/distill-lock.ps1 -o {DISTILL_DIR}/bin/distill-lock.ps1
 chmod +x {DISTILL_DIR}/bin/distill-lock.sh
+curl -sL https://raw.githubusercontent.com/tomacco/aura-distill/main/bin/distill-said-at.sh -o {DISTILL_DIR}/bin/distill-said-at.sh
+chmod +x {DISTILL_DIR}/bin/distill-said-at.sh
 echo "NEW_VERSION" > {DISTILL_DIR}/.version
 ```
 
