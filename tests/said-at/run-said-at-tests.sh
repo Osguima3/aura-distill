@@ -64,7 +64,11 @@ cat > "$T/quoted.jsonl" <<'J'
 {"type":"user","message":{"role":"user","content":"keep the retry budget at three"},"timestamp":"2026-10-05T09:00:00.000Z"}
 {"type":"user","isCompactSummary":true,"isVisibleInTranscriptOnly":true,"message":{"role":"user","content":"Summary: the user said keep the retry budget at three"},"timestamp":"2026-10-12T10:00:01.000Z"}
 {"type":"user","message":{"role":"user","content":"<bash-stdout>ship it on friday</bash-stdout>"},"timestamp":"2026-10-12T11:00:00.000Z"}
+{"type":"user","isSidechain":true,"message":{"role":"user","content":"subagent: deploy on tuesday"},"timestamp":"2026-10-12T09:00:00.000Z"}
+{"type":"user","message":{"role":"user","content":"<task-notification>agent says merge on monday</task-notification>"},"timestamp":"2026-10-12T09:30:00.000Z"}
 J
+expect "claude: sidechain prompt does not count" "unknown" "$SCRIPT" "$T/quoted.jsonl" "deploy on tuesday"
+expect "claude: task notification does not count" "unknown" "$SCRIPT" "$T/quoted.jsonl" "merge on monday"
 expect "claude: compaction summary does not count" "2026-10-05T09:00:00.000Z" "$SCRIPT" "$T/quoted.jsonl" "keep the retry budget at three"
 grep -v '"timestamp":"2026-10-05T09:00:00' "$T/quoted.jsonl" > "$T/summary-only.jsonl"
 expect "claude: summary alone is unknown, never the compaction time" "unknown" "$SCRIPT" "$T/summary-only.jsonl" "keep the retry budget at three"

@@ -105,16 +105,16 @@ The part after `aura-distill-beacon ` (for example `20261005T074014Z-27822`) is 
 
 **G) Signal times**
 
-Give every signal from A–D a `said_at`: the UTC timestamp of the message it came from. For a failure or observation not tied to one user message, use the message or tool result where it happened if you can match it, else `unknown`. The sub-agent compares it with the dates on existing knowledge so that a session left open for days cannot overwrite rules written after it (distill-process.md Step 1e). The run date is never a substitute.
+Give every signal from A–D a `said_at`: the UTC timestamp of the message it came from. For a failure or observation not tied to one user message, write `unknown`. The sub-agent compares it with the dates on existing knowledge so that a session left open for days cannot overwrite rules written after it (distill-process.md Step 1e). The run date is never a substitute.
 
 1. Find this conversation's transcript with the beacon from F, using the same search as Step 3.3.
-2. For each signal, pick a phrase of plain words from the user message it came from (no quotes, apostrophes or backslashes) and run:
+2. For each signal, pick a phrase from the user message it came from using only letters, digits and spaces, and run it in single quotes so the shell never interprets it:
    ```bash
-   {DISTILL_DIR}/bin/distill-said-at.sh "<transcript>" "<phrase>"
+   {DISTILL_DIR}/bin/distill-said-at.sh "<transcript>" '<phrase>'
    ```
    It reads only messages the user typed, so your own commands and quotes never match. It prints the message's UTC timestamp, or `unknown` when no message or more than one matches; on `unknown`, try one longer phrase.
 3. Add `session_started_at` to E: `{DISTILL_DIR}/bin/distill-said-at.sh "<transcript>" --session-start`.
-4. If the transcript is not found or the script is missing, write `said_at: unknown`. Never estimate a time.
+4. If the script is missing (an update that predates it), fetch it first: `curl -sL https://raw.githubusercontent.com/tomacco/aura-distill/main/bin/distill-said-at.sh -o {DISTILL_DIR}/bin/distill-said-at.sh && chmod +x {DISTILL_DIR}/bin/distill-said-at.sh`. If the transcript is not found or the script cannot run, write `said_at: unknown`. Never estimate a time.
 
 ### Step 2: Spawn the distillation agent
 
@@ -181,7 +181,8 @@ Return a distillation report:
 - User model updates: what changed
 - Tier health: current state
 - Economics: tokens written this run (sum of chars/4 across files you wrote), SPINE size in tokens (chars/4), tier-file KB size in tokens (sum over tier files, excludes SPINE and archive/), and the COUNT of files written
-- Flagged tensions: any honesty-vs-comfort conflicts, and every stale signal held back by Step 1e
+- Flagged tensions: any honesty-vs-comfort conflicts
+- Stale signals held back: every signal Step 1e did not apply, with its `said_at` and the entry's date
 - Open questions: anything you couldn't resolve without asking the user
 `
 })

@@ -370,10 +370,10 @@ These markers are READ by the rules/distill.md retrieval system. They trigger sp
 
 The order of distillation runs says nothing about which knowledge is newer. A session left open for days can be distilled after sessions that started later, and its signals then contradict rules that replaced them. Each signal carries `said_at` (the dispatcher's Step 1G; an inbox item's `created`). If you harvested the signals yourself (a client that runs this process directly), get `said_at` the same way: emit a beacon (`echo "aura-distill-beacon $(date -u +%Y%m%dT%H%M%SZ)-$RANDOM"`), find the transcript that contains it under `~/.claude/projects/*/` or `~/.codex/sessions/*/*/*/`, and run `{DISTILL_DIR}/bin/distill-said-at.sh` on it as distill.md Step 1G describes. Use it whenever a signal would replace, deprecate or correct an existing entry:
 
-1. **Knowledge date** = the entry's newest own date: `[UPDATED date]`, `last_validated`, or a date in its marker. Use the file's `last_updated` only when the entry has none.
+1. **Knowledge date** = the entry's newest of `[UPDATED …]` and `last_validated` (dates inside reasons or origins do not count). Use the file's `last_updated` only when the entry has neither. A date ending in `~` is approximate: treat it as date-only.
 2. **`said_at` later than the knowledge date** → the signal is newer. Encode it normally. When the knowledge date has a time of day, compare the full timestamps. When it has only a date, it covers that whole day: a signal from the same day is not later.
 3. **`said_at` earlier than the knowledge date, or on the same day as a knowledge date with no time** → the signal is stale. Do NOT change the entry. List it under **Stale signals held back** in the report: the signal, its `said_at`, the entry, and the entry's date. The user decides. Held-back signals are not stored anywhere else: the dispatcher shows them to the user, and only a confirmation (rule 5) brings one back.
-4. **`said_at: unknown`** → for something the user said, use the session's `session_started_at`. For a signal not tied to one user message (a failure, an observation), or when the session start is unknown too, the signal cannot be ordered: encode it as before, date it `unknown` (never the run date), and mark it `said_at unknown` in the report.
+4. **`said_at: unknown`** → for something the user said, use the session's `session_started_at`. For a signal not tied to one user message (a failure, an observation), or when the session start is unknown too, the signal cannot be ordered: encode it as before, date it with the run date marked approximate (for example `[UPDATED 2026-10-13~]`), and mark it `said_at unknown` in the report. When two signals in one harvest contradict each other and one time is unknown, keep the one with a known time and report the other.
 5. **The user confirms a held-back signal** (for example "apply it" after seeing the report) → that confirmation is a new decision with its own `said_at`. Encode it, even on the same day as the entry.
 6. **Signals in this harvest that contradict each other** → the later `said_at` wins.
 7. Signals that add knowledge without contradicting an entry are not affected.
@@ -738,7 +738,7 @@ Every active knowledge file should follow this structure:
 ---
 domain: [craft|ops|profile|project|feedback]
 scope: [what this file covers]
-last_updated: [date]
+last_updated: [newest said_at in this file]
 staleness_threshold: [days — default 90]
 ---
 
@@ -746,7 +746,7 @@ staleness_threshold: [days — default 90]
 
 - [PRINCIPLE] Description of the principle.
   confidence: [experimental|provisional|validated|hardened] (N confirmations, M corrections)
-  last_validated: [date]
+  last_validated: [said_at of the confirming signal]
 
 [Content — one topic per file, max 60 lines]
 ```

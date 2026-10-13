@@ -6,7 +6,7 @@
 #   distill-said-at.sh <transcript.jsonl> --session-start first timestamp in the transcript
 #
 # Only messages the user typed count: Claude Code "type":"user" lines that are not tool results,
-# meta lines, compaction summaries or command output; Codex "user_message" events, or "role":"user"
+# meta lines, compaction summaries, subagent (sidechain) prompts, task notifications or command output; Codex "user_message" events, or "role":"user"
 # response items (minus injected instructions and environment context) in rollouts with no such
 # events. A compaction summary quotes the user but carries the compaction time, so it never counts. The agent's own tool calls and their output never match, so a search for
 # the phrase does not find itself. Two or more matching messages print "unknown": the caller
@@ -35,7 +35,8 @@ elif grep -q '"type":"session_meta"' "$transcript"; then
         grep -v -e '<user_instructions>' -e '<environment_context>' -e '# AGENTS.md instructions'; }
 else
     user_lines() { grep '"type":"user"' "$transcript" | grep -v -e '"tool_result"' -e '"isMeta":true' \
-        -e '"isCompactSummary":true' -e '"isVisibleInTranscriptOnly":true' \
+        -e '"isCompactSummary":true' -e '"isVisibleInTranscriptOnly":true' -e '"isSidechain":true' \
+        -e '<task-notification>' \
         -e '<bash-stdout>' -e '<bash-stderr>' -e '<local-command-stdout>'; }
 fi
 
