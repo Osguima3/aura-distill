@@ -46,6 +46,18 @@ cat > "$T/codex-old.jsonl" <<'J'
 J
 expect "codex old: event, not the duplicate item" "2026-10-05T09:12:00.200Z" "$SCRIPT" "$T/codex-old.jsonl" "name branches with initials"
 
+# Two messages with the same timestamp, and a matching message with no timestamp: both ambiguous.
+cat > "$T/edge.jsonl" <<'J'
+{"type":"user","message":{"role":"user","content":"pin the version"},"timestamp":"2026-10-06T10:00:00.000Z"}
+{"type":"user","message":{"role":"user","content":"pin the version, really"},"timestamp":"2026-10-06T10:00:00.000Z"}
+{"type":"user","message":{"role":"user","content":"drop the cache"}}
+{"type":"user","message":{"role":"user","content":"flush the logs"}}
+{"type":"user","message":{"role":"user","content":"drop the cache now"},"timestamp":"2026-10-07T10:00:00.000Z"}
+J
+expect "two messages, same timestamp, is unknown" "unknown" "$SCRIPT" "$T/edge.jsonl" "pin the version"
+expect "a match without a timestamp counts" "unknown" "$SCRIPT" "$T/edge.jsonl" "drop the cache"
+expect "one match with no timestamp is unknown" "unknown" "$SCRIPT" "$T/edge.jsonl" "flush the logs"
+
 expect "missing transcript is unknown" "unknown" "$SCRIPT" "$T/nope.jsonl" "x"
 expect "phrase with a quote is unknown" "unknown" "$SCRIPT" "$T/claude.jsonl" 'say "hi"'
 expect "empty phrase is unknown" "unknown" "$SCRIPT" "$T/claude.jsonl" ""

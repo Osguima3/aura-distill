@@ -35,5 +35,7 @@ else
     user_lines() { grep '"type":"user"' "$transcript" | grep -v '"tool_result"' | grep -v '"isMeta":true'; }
 fi
 
-stamps=$(user_lines | grep -F -- "$phrase" | while IFS= read -r line; do printf '%s\n' "$line" | first_ts; done | sort -u)
-[ -n "$stamps" ] && [ "$(printf '%s\n' "$stamps" | wc -l | tr -d ' ')" = 1 ] && echo "$stamps" || unknown
+matches=$(user_lines | grep -F -- "$phrase")
+[ -n "$matches" ] && [ "$(printf '%s\n' "$matches" | wc -l | tr -d ' ')" = 1 ] || unknown
+ts=$(printf '%s\n' "$matches" | first_ts)
+[ -n "$ts" ] && echo "$ts" || unknown
