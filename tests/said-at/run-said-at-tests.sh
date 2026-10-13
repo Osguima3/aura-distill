@@ -20,11 +20,15 @@ cat > "$T/claude.jsonl" <<'J'
 {"type":"user","isMeta":true,"message":{"role":"user","content":"reminder: use spaces not tabs"},"timestamp":"2026-10-13T09:00:02.000Z"}
 {"type":"user","message":{"role":"user","content":"name branches with initials"},"timestamp":"2026-10-05T09:12:00.000Z"}
 {"type":"user","message":{"role":"user","content":"again: name branches with initials"},"timestamp":"2026-10-11T10:00:00.000Z"}
+{"isSidechain":false,"attachment":{"type":"queued_command","prompt":"stop, use the staging bucket","origin":{"kind":"human"},"timestamp":"2026-10-11T12:00:00.000Z","humanTurn":true},"type":"attachment","timestamp":"2026-10-11T12:00:00.000Z"}
+{"isSidechain":false,"attachment":{"type":"queued_command","prompt":"automated: use the prod bucket","origin":{"kind":"agent"},"timestamp":"2026-10-11T12:05:00.000Z"},"type":"attachment","timestamp":"2026-10-11T12:05:00.000Z"}
 J
 expect "claude: unique user message" "2026-10-12T16:40:00.000Z" "$SCRIPT" "$T/claude.jsonl" "use spaces not tabs"
 expect "claude: phrase said twice is unknown" "unknown" "$SCRIPT" "$T/claude.jsonl" "name branches with initials"
 expect "claude: longer phrase resolves it" "2026-10-11T10:00:00.000Z" "$SCRIPT" "$T/claude.jsonl" "again: name branches with initials"
 expect "claude: agent-only text is unknown" "unknown" "$SCRIPT" "$T/claude.jsonl" "distill-said-at.sh"
+expect "claude: message typed mid-turn counts" "2026-10-11T12:00:00.000Z" "$SCRIPT" "$T/claude.jsonl" "use the staging bucket"
+expect "claude: queued command not from a human does not" "unknown" "$SCRIPT" "$T/claude.jsonl" "use the prod bucket"
 expect "claude: session start" "2026-10-04T08:00:00.000Z" "$SCRIPT" "$T/claude.jsonl" --session-start
 
 # Codex rollout, current format: user turns are response_item messages with role user.

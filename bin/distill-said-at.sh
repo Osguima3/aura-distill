@@ -5,7 +5,8 @@
 #                                                         containing <phrase>, else "unknown"
 #   distill-said-at.sh <transcript.jsonl> --session-start first timestamp in the transcript
 #
-# Only messages the user typed count: Claude Code "type":"user" lines that are not tool results,
+# Only messages the user typed count: Claude Code "type":"user" lines (and queued_command attachments
+# from a human, typed mid-turn) that are not tool results,
 # meta lines, compaction summaries, subagent (sidechain) prompts, task notifications or command output; Codex "user_message" events, or "role":"user"
 # response items (minus injected instructions and environment context) in rollouts with no such
 # events. A compaction summary quotes the user but carries the compaction time, so it never counts. The agent's own tool calls and their output never match, so a search for
@@ -34,10 +35,14 @@ elif grep -q '"type":"session_meta"' "$transcript"; then
     user_lines() { grep '"type":"response_item"' "$transcript" | grep '"role":"user"' |
         grep -v -e '<user_instructions>' -e '<environment_context>' -e '# AGENTS.md instructions'; }
 else
-    user_lines() { grep '"type":"user"' "$transcript" | grep -v -e '"tool_result"' -e '"isMeta":true' \
-        -e '"isCompactSummary":true' -e '"isVisibleInTranscriptOnly":true' -e '"isSidechain":true' \
-        -e '<task-notification>' \
-        -e '<bash-stdout>' -e '<bash-stderr>' -e '<local-command-stdout>'; }
+    user_lines() {
+        grep '"type":"user"' "$transcript" | grep -v -e '"tool_result"' -e '"isMeta":true' \
+            -e '"isCompactSummary":true' -e '"isVisibleInTranscriptOnly":true' -e '"isSidechain":true' \
+            -e '<task-notification>' \
+            -e '<bash-stdout>' -e '<bash-stderr>' -e '<local-command-stdout>'
+        # A message typed while the agent is working is stored as a queued_command attachment.
+        grep '"type":"queued_command"' "$transcript" | grep '"origin":{"kind":"human"}'
+    }
 fi
 
 matches=$(user_lines | grep -F -- "$phrase")
