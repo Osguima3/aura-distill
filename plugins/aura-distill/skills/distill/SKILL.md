@@ -67,7 +67,7 @@ Scan the current session transcript (or context history) and extract:
    - Key milestones, deliveries, major refactors, or releases named during this session.
 
 6. **Signal times:**
-   - Give every signal a `said_at`: the UTC time of the message it came from, read from the session transcript. Record `session_started_at` too. Write `unknown` when the transcript has no time; never estimate one. The sub-agent uses these to stop an old session from overwriting newer knowledge (distill-process.md Step 1e).
+   - Give every signal a `said_at`: the UTC time of the message it came from, read from the session transcript (`{DISTILL_DIR}/bin/distill-said-at.sh` reads Claude Code and Codex transcripts). Record `session_started_at` too. Write `unknown` when the transcript has no time; never estimate one. The sub-agent uses these to stop an old session from overwriting newer knowledge (distill-process.md Step 1e).
 
 Format these into a clean structured signal payload.
 
@@ -112,3 +112,4 @@ Upon completion, output a concise distillation report:
 - **Signals captured:** Count of friction points, decisions, and preferences.
 - **Knowledge files updated:** Specific markdown files modified in `{DISTILL_DIR}`.
 - **SPINE changes:** Any new pointers added to `SPINE.md`.
+- **Stale signals held back:** Each signal older than the knowledge it contradicts, with both dates, so the user can confirm or drop it.

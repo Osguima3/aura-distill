@@ -91,7 +91,7 @@ Knowledge accumulates. A user who runs `/distill` weekly for six months will hav
 ---
 domain: [craft|ops|profile|project|feedback]
 scope: [what this file covers]
-last_updated: [date of last distillation that touched this]
+last_updated: [newest `said_at` encoded in this file, never the run date]
 staleness_threshold: [days before this should be reviewed — default 90]
 ---
 
@@ -209,7 +209,7 @@ After validating, update the file's frontmatter:
 
 ```markdown
 ---
-last_validated: [today's date]
+last_validated: [`said_at` of the signal that confirmed it, never the run date]
 validation_note: [optional — "confirmed still accurate" or "updated X because Y"]
 ---
 ```

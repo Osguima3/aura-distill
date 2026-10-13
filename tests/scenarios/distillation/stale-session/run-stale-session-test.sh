@@ -16,7 +16,7 @@ AGENT="${DISTILL_AGENT_CMD:-claude --bare -p --no-session-persistence --dangerou
 
 mkdir "$STORE/home"
 (cd "$STORE" && DISTILL_DIR="$STORE" HOME="$STORE/home" $AGENT "$(cat prompt.md)") > "$REPORT" 2>&1 || true
-"$DIR/check.sh" "$STORE" "$REPORT"
-rc=$?
+rc=0
+"$DIR/check.sh" "$STORE" "$REPORT" || rc=$?
 echo "store: $STORE"
 exit $rc
