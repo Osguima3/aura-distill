@@ -372,8 +372,8 @@ The order of distillation runs says nothing about which knowledge is newer. A se
 
 1. **Knowledge date** = the entry's newest own date: `[UPDATED date]`, `last_validated`, or a date in its marker. Use the file's `last_updated` only when the entry has none.
 2. **`said_at` later than the knowledge date** → the signal is newer. Encode it normally. When the knowledge date has a time of day, compare the full timestamps. When it has only a date, it covers that whole day: a signal from the same day is not later.
-3. **`said_at` earlier than the knowledge date, or on the same day as a knowledge date with no time** → the signal is stale. Do NOT change the entry. List it under **Stale signals held back** in the report: the signal, its `said_at`, the entry, and the entry's date. The user decides.
-4. **`said_at: unknown`** → use the session's `session_started_at`. If that is unknown too, the signal cannot be ordered: encode it as before and mark it `said_at unknown` in the report.
+3. **`said_at` earlier than the knowledge date, or on the same day as a knowledge date with no time** → the signal is stale. Do NOT change the entry. List it under **Stale signals held back** in the report: the signal, its `said_at`, the entry, and the entry's date. The user decides. Held-back signals are not stored anywhere else: the dispatcher shows them to the user, and only a confirmation (rule 5) brings one back.
+4. **`said_at: unknown`** → for something the user said, use the session's `session_started_at`. For a signal not tied to one user message (a failure, an observation), or when the session start is unknown too, the signal cannot be ordered: encode it as before, date it `unknown` (never the run date), and mark it `said_at unknown` in the report.
 5. **The user confirms a held-back signal** (for example "apply it" after seeing the report) → that confirmation is a new decision with its own `said_at`. Encode it, even on the same day as the entry.
 6. **Signals in this harvest that contradict each other** → the later `said_at` wins.
 7. Signals that add knowledge without contradicting an entry are not affected.
@@ -418,7 +418,7 @@ Every knowledge entry SHOULD include confidence metadata. Format:
 **On confirmation signals (from Step 1a):**
 - Find the principle in the knowledge file
 - Increment confirmation count
-- Set `last_validated` to the signal's `said_at` date, unless that is earlier than the current value (Step 1e)
+- Set `last_validated` to the signal's `said_at`, unless that is earlier than the current value (Step 1e)
 - If crosses threshold (3+) → promote to next level
 
 **On paradigm signals (high-confidence correction):**
@@ -728,7 +728,7 @@ Don't auto-remove. Ask first. Behavior might be contextual.
 ### Staleness review
 - Flag Tier 2 files not updated in > 90 days (or their custom `staleness_threshold`)
 - Ask the user: "Is [file] still relevant?"
-- If yes, bump `last_updated`. If no, archive it.
+- If yes, set `last_updated` to the `said_at` of that confirmation. If no, archive it.
 
 ### Tier 2 file format
 

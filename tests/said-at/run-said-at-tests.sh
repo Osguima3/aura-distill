@@ -58,6 +58,24 @@ expect "two messages, same timestamp, is unknown" "unknown" "$SCRIPT" "$T/edge.j
 expect "a match without a timestamp counts" "unknown" "$SCRIPT" "$T/edge.jsonl" "drop the cache"
 expect "one match with no timestamp is unknown" "unknown" "$SCRIPT" "$T/edge.jsonl" "flush the logs"
 
+# Lines that quote the user but are not the user speaking: a compaction summary (written at
+# compaction time), command output, and Codex's injected instructions.
+cat > "$T/quoted.jsonl" <<'J'
+{"type":"user","message":{"role":"user","content":"keep the retry budget at three"},"timestamp":"2026-10-05T09:00:00.000Z"}
+{"type":"user","isCompactSummary":true,"isVisibleInTranscriptOnly":true,"message":{"role":"user","content":"Summary: the user said keep the retry budget at three"},"timestamp":"2026-10-12T10:00:01.000Z"}
+{"type":"user","message":{"role":"user","content":"<bash-stdout>ship it on friday</bash-stdout>"},"timestamp":"2026-10-12T11:00:00.000Z"}
+J
+expect "claude: compaction summary does not count" "2026-10-05T09:00:00.000Z" "$SCRIPT" "$T/quoted.jsonl" "keep the retry budget at three"
+grep -v '"timestamp":"2026-10-05T09:00:00' "$T/quoted.jsonl" > "$T/summary-only.jsonl"
+expect "claude: summary alone is unknown, never the compaction time" "unknown" "$SCRIPT" "$T/summary-only.jsonl" "keep the retry budget at three"
+expect "claude: command output does not count" "unknown" "$SCRIPT" "$T/quoted.jsonl" "ship it on friday"
+cat > "$T/codex-inject.jsonl" <<'J'
+{"timestamp":"2026-10-04T08:00:00.000Z","type":"session_meta","payload":{"id":"s"}}
+{"timestamp":"2026-10-04T08:00:00.500Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"# AGENTS.md instructions\n<user_instructions>never force push</user_instructions>"}]}}
+{"timestamp":"2026-10-04T08:00:00.600Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"<environment_context>cwd</environment_context>"}]}}
+J
+expect "codex: injected instructions do not count" "unknown" "$SCRIPT" "$T/codex-inject.jsonl" "never force push"
+
 expect "missing transcript is unknown" "unknown" "$SCRIPT" "$T/nope.jsonl" "x"
 expect "phrase with a quote is unknown" "unknown" "$SCRIPT" "$T/claude.jsonl" 'say "hi"'
 expect "empty phrase is unknown" "unknown" "$SCRIPT" "$T/claude.jsonl" ""

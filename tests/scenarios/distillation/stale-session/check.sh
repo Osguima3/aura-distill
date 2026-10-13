@@ -7,6 +7,7 @@ STORE="${1:?usage: check.sh <store> <report-file> [run-date]}"
 REPORT="${2:?usage: check.sh <store> <report-file> [run-date]}"
 RUN_DATE="${3:-$(date -u +%Y-%m-%d)}"
 CARD="$STORE/craft/engineering.md"
+case "$RUN_DATE" in 2026-10-01|2026-10-10|2026-10-12) echo "check.sh: run date $RUN_DATE is a fixture date; pass another as the third argument" >&2; exit 2 ;; esac
 fail=0
 check() { local name="$1"; shift; if "$@"; then echo "PASS  $name"; else echo "FAIL  $name"; fail=1; fi; }
 

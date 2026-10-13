@@ -105,7 +105,7 @@ The part after `aura-distill-beacon ` (for example `20261005T074014Z-27822`) is 
 
 **G) Signal times**
 
-Give every signal from A–D a `said_at`: the UTC timestamp of the message it came from. The sub-agent compares it with the dates on existing knowledge so that a session left open for days cannot overwrite rules written after it (distill-process.md Step 1e). The run date is never a substitute.
+Give every signal from A–D a `said_at`: the UTC timestamp of the message it came from. For a failure or observation not tied to one user message, use the message or tool result where it happened if you can match it, else `unknown`. The sub-agent compares it with the dates on existing knowledge so that a session left open for days cannot overwrite rules written after it (distill-process.md Step 1e). The run date is never a substitute.
 
 1. Find this conversation's transcript with the beacon from F, using the same search as Step 3.3.
 2. For each signal, pick a phrase of plain words from the user message it came from (no quotes, apostrophes or backslashes) and run:
@@ -230,6 +230,7 @@ grep -l "aura-distill-beacon <beacon>" $(ls -t ~/.claude/projects/*/*.jsonl ~/.c
    - One economics line (cost of this distillation + current KB footprint — from the ledger entry)
    - Any open questions that need user input
    - Any flagged tensions
+   - Every stale signal held back, with both dates, so the user can confirm or drop it
 
 The spine is now in your context — you can reference distilled knowledge for the remainder of this session without re-reading files.
 
