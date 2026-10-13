@@ -6,6 +6,7 @@ set -euo pipefail
 STORE="${1:?usage: setup.sh <empty-dir>}"
 REPO="$(cd "$(dirname "$0")/../../../.." && pwd)"
 [ -z "$(ls -A "$STORE" 2>/dev/null)" ] || { echo "setup.sh: $STORE is not empty" >&2; exit 2; }
+export DISTILL_DIR="$STORE"   # the lock script honors DISTILL_DIR; never let a caller's value reach a real store
 
 mkdir -p "$STORE/craft" "$STORE/bin"
 sed "s|{DISTILL_DIR}|$STORE|g" "$REPO/distill-process.md" > "$STORE/distill-process.md"

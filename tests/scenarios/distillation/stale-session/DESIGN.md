@@ -32,4 +32,4 @@ The contradicted rules are neutral conventions on purpose. An earlier draft used
 ./run-stale-session-test.sh
 ```
 
-The default agent is `claude --bare` with no saved session, run inside the store, so it never loads the real profile; it needs `ANTHROPIC_API_KEY`. `DISTILL_AGENT_CMD` swaps the agent and must be just as isolated. The store is a `mktemp -d` directory; the test never touches `~/.aura-distill`.
+The default agent is `claude --bare` with no saved session, run inside the store with `HOME` and `DISTILL_DIR` pointed at the test store, so it never reads or locks the real profile; it needs `ANTHROPIC_API_KEY`. `DISTILL_AGENT_CMD` swaps the agent and must be just as isolated. The store is a `mktemp -d` directory; the test never touches `~/.aura-distill`.
